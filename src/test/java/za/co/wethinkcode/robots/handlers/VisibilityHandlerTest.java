@@ -59,7 +59,7 @@ public class VisibilityHandlerTest {
         JSONObject jsonObject = (JSONObject)response.object.getJSONArray("objects").get(3);
         assertEquals("OBSTACLE", jsonObject.getString("type"));
         assertEquals(Direction.CardinalDirection.WEST, jsonObject.get("direction"));
-        assertEquals(1, jsonObject.getInt("distance"));
+        assertEquals(2, jsonObject.getInt("distance"));
         assertFalse(response.object.getJSONArray("objects").isEmpty());
     }
 

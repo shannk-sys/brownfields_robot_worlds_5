@@ -1,0 +1,113 @@
+image: maven:3.9.6-eclipse-temurin-21
+
+stages:
+  - compile
+  - unit-test
+  - package
+  - acceptance-test-ref
+  - acceptance-test-main
+  - release
+  - docker-build
+  - docker-publish
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+before_script:
+  - apt-get update && apt-get install -y make docker.io
+  - git config --global user.name "GitLab CI"
+  - git config --global user.email "ci@example.com"
+
+compile:
+  stage: compile
+  script:
+    - make clean
+    - make compile
+  artifacts:
+    paths:
+      - target/
+  rules:
+    - when: always
+
+unit_tests:
+  stage: unit-test
+  script:
+    - make test
+  artifacts:
+    when: always
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+  rules:
+    - when: always
+
+package:
+  stage: package
+  script:
+    - make package
+  artifacts:
+    paths:
+      - target/*.jar
+  rules:
+    - when: always
+
+acceptance_tests_ref:
+  stage: acceptance-test-ref
+  script:
+    - make test-ref
+  allow_failure: false
+  rules:
+    - when: always
+
+acceptance_tests_main:
+  stage: acceptance-test-main
+  script:
+    - make test-own
+  allow_failure: false
+  rules:
+    - when: always
+
+release:
+  stage: release
+  script:
+    - make release
+  artifacts:
+    paths:
+      - target/*.jar
+  rules:
+    - when: always
+
+docker-build:
+  stage: docker-build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - apk add --no-cache make
+    - docker info
+  script:
+    - make docker-build
+  dependencies:
+    - package
+  rules:
+    - when: always
+
+docker-publish:
+  stage: docker-publish
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_REGISTRY: $CI_REGISTRY
+    DOCKER_REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
+  before_script:
+    - apk add --no-cache make
+    - docker info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - make docker-publish
+  dependencies:
+    - package
+  rules:
+    - when: always
