@@ -1,0 +1,4 @@
+net.lemnik.eodsql
+net.lemnik.eodsql.impl
+net.lemnik.eodsql.spi
+net.lemnik.eodsql.spi.util
