@@ -1,0 +1,4 @@
+docker build -t robot-worlds-server:1.0.0 .
+docker run -p 8001:8080 robot-worlds-server:1.0.0
+docker tag robot-worlds-server:1.0.0 robot-world-release
+docker push my.private.registry.net/roboworlds/server
