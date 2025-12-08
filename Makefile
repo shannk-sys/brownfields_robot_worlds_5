@@ -17,13 +17,13 @@ test: test-ref test-own
 
 test-ref:
 	@echo "Killing any existing reference server on port 5000..."
-	- fuser -k 5000/tcp || true
+	# - fuser -k 5000/tcp || true
 	@echo "Running acceptance tests against reference server..."
 	./scripts/start-reference-server.sh &
 	REF_PID=$$!; \
 	sleep 2; \
 	$(MVN) test -Dtest=*Tests; \
-	- kill $$REF_PID || true
+	# - kill $$REF_PID || true
 
 test-own:
 	@echo "Running acceptance tests against own server..."
